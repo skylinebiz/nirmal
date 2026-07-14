@@ -48,6 +48,23 @@ app_license = "mit"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+doctype_js = {
+    "Quotation": "public/js/quotation.js",
+    "Sales Order": "public/js/quotation.js"
+}
+
+doc_events = {
+    "Quotation": {
+        # "after_insert": "nirmal.quotation.generate_reference_number"
+        "autoname": "nirmal.quotation.quotation_autoname"
+    }
+}
+
+override_whitelisted_methods = {
+    "erpnext.selling.doctype.quotation.quotation.make_sales_order":
+        "nirmal.quotation.make_sales_order"
+}
+
 # Svg Icons
 # ------------------
 # include app icons in desk
