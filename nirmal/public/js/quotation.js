@@ -8,28 +8,41 @@ frappe.ui.form.on("Quotation", {
         );
     },
 
-    delivery_date_range(frm) {
-        if (!frm.doc.custom_delivery_end_days) return;
+    custom_delivery_date_range(frm) {
+        update_delivery_details(frm);
+    },
 
-        const delivery_date = frappe.datetime.add_days(
-            frm.doc.transaction_date,
-            frm.doc.custom_delivery_end_days
-        );
-
-        frm.set_value("delivery_date", delivery_date);
-
-        (frm.doc.items || []).forEach(row => {
-            frappe.model.set_value(
-                row.doctype,
-                row.name,
-                "delivery_date",
-                delivery_date
-            );
-        });
-
-        frm.refresh_field("items");
+    items_add(frm) {
+        update_delivery_details(frm);
     }
 });
+
+function update_delivery_details(frm) {
+    (frm.doc.items || []).forEach(row => {
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_date_range",
+            frm.doc.custom_delivery_date_range
+        );
+
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_start_day",
+            frm.doc.custom_delivery_start_day
+        );
+
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_end_day",
+            frm.doc.custom_delivery_end_day
+        );
+    });
+
+    frm.refresh_field("items");
+}
 
 
 frappe.ui.form.on("Sales Order", {
@@ -106,5 +119,97 @@ frappe.ui.form.on("Sales Order", {
                 r.message.custom_delivery_end_day
             );
         });
+    },
+
+    custom_delivery_end_day(frm) {
+        update_delivery_details(frm);
+    },
+
+    custom_delivery_start_day(frm) {
+        update_delivery_details(frm);
+    }
+
+});
+
+
+function update_delivery_details(frm) {
+    (frm.doc.items || []).forEach(row => {
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_date_range",
+            frm.doc.custom_delivery_date_range
+        );
+
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_start_day",
+            frm.doc.custom_delivery_start_day
+        );
+
+        frappe.model.set_value(
+            row.doctype,
+            row.name,
+            "custom_delivery_end_day",
+            frm.doc.custom_delivery_end_day
+        );
+    });
+
+    frm.refresh_field("items");
+}
+
+
+frappe.ui.form.on("Sales Order Item", {
+    items_add(frm, cdt, cdn) {
+        console.log("Row Added");
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_date_range",
+            frm.doc.custom_delivery_date_range
+        );
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_start_day",
+            frm.doc.custom_delivery_start_day
+        );
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_end_day",
+            frm.doc.custom_delivery_end_day
+        );
+    }
+});
+
+frappe.ui.form.on("Quotation Item", {
+    items_add(frm, cdt, cdn) {
+        console.log("Row Added");
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_date_range",
+            frm.doc.custom_delivery_date_range
+        );
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_start_day",
+            frm.doc.custom_delivery_start_day
+        );
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "custom_delivery_end_day",
+            frm.doc.custom_delivery_end_day
+        );
     }
 });

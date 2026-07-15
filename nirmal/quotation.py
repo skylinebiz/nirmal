@@ -62,29 +62,24 @@ def quotation_autoname(doc, method=None):
 def make_sales_order(source_name, target_doc=None, args=None):
     source = frappe.get_doc("Quotation", source_name)
 
-    # frappe.errprint("========== SOURCE QUOTATION ==========")
-    # frappe.errprint(f"Quotation: {source.name}")
-    # frappe.errprint(f"Range: {source.custom_delivery_date_range}")
-    # frappe.errprint(f"Start Day: {source.custom_delivery_start_day}")
-    # frappe.errprint(f"End Day: {source.custom_delivery_end_day}")
-
     sales_order = erpnext_make_sales_order(source_name, target_doc, args)
 
-    # frappe.errprint("========== AFTER ERPNEXT MAPPING ==========")
-    # frappe.errprint(f"Range: {sales_order.get('custom_delivery_date_range')}")
-    # frappe.errprint(f"Start Day: {sales_order.get('custom_delivery_start_day')}")
-    # frappe.errprint(f"End Day: {sales_order.get('custom_delivery_end_day')}")
-
+    # Parent fields
     sales_order.custom_delivery_date_range = source.custom_delivery_date_range
     sales_order.custom_delivery_start_day = source.custom_delivery_start_day
     sales_order.custom_delivery_end_day = source.custom_delivery_end_day
 
-    # frappe.errprint("========== AFTER ASSIGNMENT ==========")
-    # frappe.errprint(f"Range: {sales_order.custom_delivery_date_range}")
-    # frappe.errprint(f"Start Day: {sales_order.custom_delivery_start_day}")
-    # frappe.errprint(f"End Day: {sales_order.custom_delivery_end_day}")
+    # Map Quotation Items by quotation_item
+    quotation_items = {
+        item.name: item for item in source.items
+    }
 
-    # frappe.errprint("========== AS DICT ==========")
-    # frappe.errprint(sales_order.as_dict())
+    for so_item in sales_order.items:
+        quotation_item = quotation_items.get(so_item.quotation_item)
+
+        if quotation_item:
+            so_item.custom_delivery_date_range = quotation_item.custom_delivery_date_range
+            so_item.custom_delivery_start_day = quotation_item.custom_delivery_start_day
+            so_item.custom_delivery_end_day = quotation_item.custom_delivery_end_day
 
     return sales_order
