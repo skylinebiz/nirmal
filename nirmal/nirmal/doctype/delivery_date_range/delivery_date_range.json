@@ -20,18 +20,20 @@
   {
    "fieldname": "start_days",
    "fieldtype": "Int",
+   "in_standard_filter": 1,
    "label": "Start Days"
   },
   {
    "fieldname": "end_days",
    "fieldtype": "Int",
+   "in_standard_filter": 1,
    "label": "End Days"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-14 15:19:10.555947",
+ "modified": "2026-07-15 16:59:23.563030",
  "modified_by": "Administrator",
  "module": "Nirmal",
  "name": "Delivery Date Range",
