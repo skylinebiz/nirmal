@@ -2,6 +2,7 @@ import frappe
 from frappe.model.naming import getseries
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.selling.doctype.quotation.quotation import make_sales_order as erpnext_make_sales_order
+from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice as erpnext_make_sales_invoice
 
 
 COMPANY_PREFIX = "NGI"
@@ -65,6 +66,7 @@ def make_sales_order(source_name, target_doc=None, args=None):
     sales_order = erpnext_make_sales_order(source_name, target_doc, args)
 
     # Parent fields
+    sales_order.custom_quotation_no = source.name
     sales_order.custom_delivery_date_range = source.custom_delivery_date_range
     sales_order.custom_delivery_start_day = source.custom_delivery_start_day
     sales_order.custom_delivery_end_day = source.custom_delivery_end_day
@@ -83,3 +85,32 @@ def make_sales_order(source_name, target_doc=None, args=None):
             so_item.custom_delivery_end_day = quotation_item.custom_delivery_end_day
 
     return sales_order
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None, args=None):
+    source = frappe.get_doc("Sales Order", source_name)
+
+    sales_invoice = erpnext_make_sales_invoice(
+        source_name,
+        target_doc,
+        args
+    )
+
+    # Parent fields
+    sales_invoice.custom_quotation_no = source.custom_quotation_no
+    sales_invoice.custom_delivery_date_range = source.custom_delivery_date_range
+    sales_invoice.custom_delivery_start_day = source.custom_delivery_start_day
+    sales_invoice.custom_delivery_end_day = source.custom_delivery_end_day
+
+    sales_order_items = {d.name: d for d in source.items}
+
+    for si_item in sales_invoice.items:
+        so_item = sales_order_items.get(si_item.so_detail)
+
+        if so_item:
+            si_item.custom_delivery_date_range = so_item.custom_delivery_date_range
+            si_item.custom_delivery_start_day = so_item.custom_delivery_start_day
+            si_item.custom_delivery_end_day = so_item.custom_delivery_end_day
+
+    return sales_invoice

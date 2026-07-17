@@ -50,7 +50,9 @@ app_license = "mit"
 
 doctype_js = {
     "Quotation": "public/js/quotation.js",
-    "Sales Order": "public/js/quotation.js"
+    "Sales Order": "public/js/quotation.js",
+    "Sales Invoice": "public/js/quotation.js"
+
 }
 
 doc_events = {
@@ -62,7 +64,10 @@ doc_events = {
 
 override_whitelisted_methods = {
     "erpnext.selling.doctype.quotation.quotation.make_sales_order":
-        "nirmal.quotation.make_sales_order"
+        "nirmal.quotation.make_sales_order",
+
+    "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice":
+        "nirmal.quotation.make_sales_invoice",
 }
 
 # Svg Icons

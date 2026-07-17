@@ -96,16 +96,14 @@ limit=1
             {% endif %}
 
             <div class="center">
-
                 {% if addr %}
                 <div>
-                    {{ addr.address_line1 }}<br>
-
+                    {{ addr.address_line1 }},
                     {% if addr.address_line2 %}
                     {{ addr.address_line2 }},
                     {% endif %}
 
-                    {{ addr.state }} {{ addr.pincode }}
+                    {{ addr.state }}, {{ addr.pincode }}
                 </div>
                 {% endif %}
 
@@ -328,15 +326,13 @@ limit=1
         <td width="40%">
 
             <b>Signature & Date</b>
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="height:50px;">
+            {% endif %}
 
             <div class="signature"></div>
 
             <div class="center">
-                {% if company.company_logo %}
-                <img src="{{ company.company_logo }}" style="height:50px;">
-                {% endif %}
-                For {{ doc.company }}
-
                 <br><br>
 
                 <b>AUTHORISED SIGNATORY</b>
