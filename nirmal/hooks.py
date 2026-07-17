@@ -63,11 +63,17 @@ doc_events = {
 }
 
 override_whitelisted_methods = {
+    # Sales Order ← Quotation
     "erpnext.selling.doctype.quotation.quotation.make_sales_order":
         "nirmal.quotation.make_sales_order",
 
+    # Sales Invoice ← Sales Order
     "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice":
         "nirmal.quotation.make_sales_invoice",
+
+    # Sales Invoice ← Quotation
+    # "erpnext.selling.doctype.quotation.quotation.make_sales_invoice":
+    #     "nirmal.quotation.make_sales_invoice",
 }
 
 # Svg Icons
