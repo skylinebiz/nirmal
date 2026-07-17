@@ -62,27 +62,9 @@
 
 {% set company = frappe.get_doc("Company", doc.company) %}
 
-<table class="header">
-
-    <tr>
-
-        <td width="15%">
-            {% if company.company_logo %}
-            <img src="{{ company.company_logo }}" style="height:70px;">
-            {% endif %}
-        </td>
-
-        <td class="center">
-
-            <div class="company-name">
-                {{ company.company_name }}
-            </div>
-
-        </td>
-
-    </tr>
-
-</table>
+{% if company.company_logo %}
+<img src="{{ company.company_logo }}" style="height:70px;">
+{% endif %}
 
 <br>
 
