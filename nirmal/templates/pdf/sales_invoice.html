@@ -52,11 +52,20 @@
 
     .footer {
         margin-top: 45px;
-        border-top: 1px solid #999;
         padding-top: 10px;
-        font-size: 10px;
-        text-align: center;
+        font-size: 13px;
         color: #444;
+        text-align: left;
+    }
+
+    .footer-title {
+        border-bottom: 1px solid #999;
+        display: block;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
     }
 </style>
 
@@ -113,7 +122,7 @@
     <br>
 
     <b>
-        Sub. : Dispatch Documents
+        Sub. : Dispatch Documents - Only E-Mail Intimation
     </b>
 
 </div>
@@ -129,6 +138,7 @@ details.
 
 <br><br>
 
+<!-- Item Table -->
 <table class="border">
 
     <tr>
@@ -303,42 +313,89 @@ Authorised Signatory
 
 Encl. As above
 
+{% set contact_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Contact"
+},
+fields=["parent"]
+) %}
+
+{% set phones = [] %}
+{% set emails = [] %}
+
+{% for link in contact_links %}
+{% set contact = frappe.get_doc("Contact", link.parent) %}
+
+{% if contact.phone %}
+{% if phones.append(contact.phone) %}{% endif %}
+{% endif %}
+
+{% if contact.mobile_no %}
+{% if phones.append(contact.mobile_no) %}{% endif %}
+{% endif %}
+
+{% if contact.email_id %}
+{% if emails.append(contact.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if not phones and company.phone_no %}
+{% if phones.append(company.phone_no) %}{% endif %}
+{% endif %}
+
+{% if not emails and company.email %}
+{% if emails.append(company.email) %}{% endif %}
+{% endif %}
+
+
+{% set address_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Address"
+},
+fields=["parent"],
+limit=1
+) %}
+
+{% if address_links %}
+{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{% endif %}
+
+<!-- FOOTER -->
 <div class="footer">
 
-    <b>SERVING FROM GENERATIONS</b>
+    <div class="footer-title">
+        SERVING FROM GENERATIONS
+    </div>
 
-    <br><br>
-
-    {% if company.company_address %}
-    {% set caddr = frappe.get_doc("Address", company.company_address) %}
-
-    {{ caddr.address_line1 }}
-
-    {% if caddr.address_line2 %}
-    , {{ caddr.address_line2 }}
+    {% if addr %}
+    <div>
+        {{ addr.address_line1 }},
+        {% if addr.address_line2 %}
+        {{ addr.address_line2 }},
+        {% endif %}
+        {{ addr.state }}, {{ addr.pincode }}
+    </div>
     {% endif %}
 
-    <br>
-
-    {{ caddr.city }},
-    {{ caddr.state }}
-    {{ caddr.pincode }}
-
+    {% if phones %}
+    <div>
+        Phone: {{ phones | unique | join(", ") }}
+    </div>
     {% endif %}
 
-    <br>
+    {% if emails %}
+    <div>
+        Email: {{ emails | unique | join(", ") }}
+    </div>
+    {% endif %}
 
-    Phone :
-    {{ company.phone_no or "" }}
-
-    <br>
-
-    Email :
-    {{ company.email or "" }}
-
-    <br>
-
-    Website :
-    {{ company.website or "" }}
+    <div>
+        Website: {{ company.website or "" }}
+    </div>
 
 </div>

@@ -60,8 +60,7 @@
     }
 </style>
 
-<!-- ================= HEADER ================= -->
-
+<!--  HEADER  -->
 {% set company = frappe.get_doc("Company", doc.company) %}
 
 {% set address_links = frappe.get_all(
@@ -80,12 +79,46 @@ limit=1
 {% endif %}
 
 
+
+{% set contact_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Contact"
+},
+fields=["parent"]
+) %}
+
+{% set phones = [] %}
+{% set emails = [] %}
+
+{% for link in contact_links %}
+{% set contact = frappe.get_doc("Contact", link.parent) %}
+
+{% if contact.phone %}
+{% if phones.append(contact.phone) %}{% endif %}
+{% endif %}
+
+{% if contact.mobile_no %}
+{% if phones.append(contact.mobile_no) %}{% endif %}
+{% endif %}
+
+{% if contact.email_id %}
+{% if emails.append(contact.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if not phones and company.phone_no %}
+{% if phones.append(company.phone_no) %}{% endif %}
+{% endif %}
+
+{% if not emails and company.email %}
+{% if emails.append(company.email) %}{% endif %}
+{% endif %}
+
 <table class="border">
     <tr>
         <td>
-
-
-            <div class="title">{{ doc.company }}</div>
 
             {% if company.company_logo %}
             <img src="{{ company.company_logo }}" style="height:50px;">
@@ -107,12 +140,16 @@ limit=1
                 </div>
                 {% endif %}
 
-                {% if company.phone_no %}
-                <div>{{ company.phone_no }}</div>
+                {% if phones %}
+                <div>
+                    Phone: {{ phones | unique | join(", ") }}
+                </div>
                 {% endif %}
 
-                {% if company.email %}
-                <div>Email: {{ company.email }}</div>
+                {% if emails %}
+                <div>
+                    Email: {{ emails | unique | join(", ") }}
+                </div>
                 {% endif %}
 
                 {% if company.website %}
@@ -144,7 +181,7 @@ limit=1
 
 <br>
 
-<!-- ================= BUYER + TERMS ================= -->
+<!--  BUYER + TERMS  -->
 {% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
 {% set payment_terms = frappe.get_doc("Terms and Conditions", "Payment Terms") %}
 
@@ -201,7 +238,7 @@ limit=1
 
 <br>
 
-<!-- ================= ITEMS ================= -->
+<!--  ITEMS  -->
 
 <table class="border items">
 
@@ -308,7 +345,7 @@ limit=1
 
 <br>
 
-<!-- ================= FOOTER ================= -->
+<!-- FOOTER -->
 
 <table class="border">
 
