@@ -2,7 +2,13 @@ import frappe
 from frappe.model.naming import getseries
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.selling.doctype.quotation.quotation import make_sales_order as erpnext_make_sales_order
+from erpnext.selling.doctype.sales_order.sales_order import (
+    make_sales_invoice as make_sales_invoice_from_so,
+)
 
+from erpnext.selling.doctype.quotation.quotation import (
+    make_sales_invoice as make_sales_invoice_from_quotation,
+)
 
 COMPANY_PREFIX = "NGI"
 
@@ -65,6 +71,7 @@ def make_sales_order(source_name, target_doc=None, args=None):
     sales_order = erpnext_make_sales_order(source_name, target_doc, args)
 
     # Parent fields
+    sales_order.custom_quotation_no = source.name
     sales_order.custom_delivery_date_range = source.custom_delivery_date_range
     sales_order.custom_delivery_start_day = source.custom_delivery_start_day
     sales_order.custom_delivery_end_day = source.custom_delivery_end_day
@@ -83,3 +90,51 @@ def make_sales_order(source_name, target_doc=None, args=None):
             so_item.custom_delivery_end_day = quotation_item.custom_delivery_end_day
 
     return sales_order
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None, args=None):
+    doctype = (
+        "Sales Order"
+        if frappe.db.exists("Sales Order", source_name)
+        else "Quotation"
+    )
+
+    source = frappe.get_doc(doctype, source_name)
+
+    frappe.log_error(
+        title= doctype + source_name,
+        message=frappe.as_json(source.as_dict(), indent=2)
+    )
+
+    if doctype == "Sales Order":
+        sales_invoice = make_sales_invoice_from_so(
+            source_name,
+            target_doc,
+            args,
+        )
+    else:
+        sales_invoice = make_sales_invoice_from_quotation(
+            source_name,
+            target_doc,
+            args,
+        )
+
+    sales_invoice.custom_quotation_no = source.name or source.custom_quotation_no
+    sales_invoice.custom_delivery_date_range = source.custom_delivery_date_range
+    sales_invoice.custom_delivery_start_day = source.custom_delivery_start_day
+    sales_invoice.custom_delivery_end_day = source.custom_delivery_end_day
+
+    source_items = {d.name: d for d in source.items}
+
+    for si_item in sales_invoice.items:
+        source_item = source_items.get(
+            si_item.so_detail if doctype == "Sales Order" else si_item.quotation_item
+        )
+
+        if source_item:
+            si_item.custom_delivery_date_range = source_item.custom_delivery_date_range
+            si_item.custom_delivery_start_day = source_item.custom_delivery_start_day
+            si_item.custom_delivery_end_day = source_item.custom_delivery_end_day
+
+    return sales_invoice

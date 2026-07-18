@@ -1,0 +1,383 @@
+<style>
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        color: #000;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .border td,
+    .border th {
+        border: 1px solid #000;
+        padding: 4px;
+        vertical-align: top;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .small {
+        font-size: 9px;
+    }
+
+    .header td {
+        border: none;
+    }
+
+    .items th {
+        background: #f4f4f4;
+    }
+
+    .signature {
+        height: 70px;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+</style>
+
+<!--  HEADER  -->
+{% set company = frappe.get_doc("Company", doc.company) %}
+
+{% set address_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Address"
+},
+fields=["parent"],
+limit=1
+) %}
+
+{% if address_links %}
+{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{% endif %}
+
+
+
+{% set contact_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Contact"
+},
+fields=["parent"]
+) %}
+
+{% set phones = [] %}
+{% set emails = [] %}
+
+{% for link in contact_links %}
+{% set contact = frappe.get_doc("Contact", link.parent) %}
+
+{% if contact.phone %}
+{% if phones.append(contact.phone) %}{% endif %}
+{% endif %}
+
+{% if contact.mobile_no %}
+{% if phones.append(contact.mobile_no) %}{% endif %}
+{% endif %}
+
+{% if contact.email_id %}
+{% if emails.append(contact.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if not phones and company.phone_no %}
+{% if phones.append(company.phone_no) %}{% endif %}
+{% endif %}
+
+{% if not emails and company.email %}
+{% if emails.append(company.email) %}{% endif %}
+{% endif %}
+
+<table class="border">
+    <tr>
+        <td>
+
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="height:50px;">
+            {% endif %}
+
+            {% if company.registration_details %}
+            <div class="center">{{ company.registration_details }}</div>
+            {% endif %}
+
+            <div class="center">
+                {% if addr %}
+                <div>
+                    {{ addr.address_line1 }},
+                    {% if addr.address_line2 %}
+                    {{ addr.address_line2 }},
+                    {% endif %}
+
+                    {{ addr.state }}, {{ addr.pincode }}
+                </div>
+                {% endif %}
+
+                {% if phones %}
+                <div>
+                    Phone: {{ phones | unique | join(", ") }}
+                </div>
+                {% endif %}
+
+                {% if emails %}
+                <div>
+                    Email: {{ emails | unique | join(", ") }}
+                </div>
+                {% endif %}
+
+                {% if company.website %}
+                <div>W: {{ company.website }}</div>
+                {% endif %}
+
+                {% if company.gstin %}
+                <div>GSTIN: {{ company.gstin }}</div>
+                {% endif %}
+            </div>
+
+
+            <hr>
+
+            <h3 class="center">
+                QUOTATION CUM PERFORMA INVOICE
+            </h3>
+
+            <div class="center">
+                <b>No.</b> {{ doc.name }}
+                &nbsp;&nbsp;&nbsp;
+                <b>Dated :</b>
+                {{ frappe.utils.formatdate(doc.transaction_date) }}
+            </div>
+
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<!--  BUYER + TERMS  -->
+{% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
+{% set payment_terms = frappe.get_doc("Terms and Conditions", "Payment Terms") %}
+
+<table class="border">
+
+    <tr>
+
+        <td width="50%">
+
+            <b>Buyer</b><br><br>
+
+            {{ doc.customer_name }}<br>
+
+            {% if doc.customer_address %}
+            {% set customer_address = frappe.get_doc("Address", doc.customer_address) %}
+
+            {{ customer_address.address_line1 }}<br>
+
+            {% if customer_address.address_line2 %}
+            {{ customer_address.address_line2 }}<br>
+            {% endif %}
+
+            {{ customer_address.city }}
+            {{ customer_address.pincode }}<br>
+
+            State Code :
+            {{ customer_address.gst_state_number }}
+
+            {% endif %}
+
+        </td>
+
+        <td width="50%">
+
+            Buyer's Purchase Enquiry No.<br>
+
+            {{ doc.po_no or "" }}
+
+            Enquiry Date :
+
+            {{ frappe.utils.formatdate(doc.po_date) }}
+
+            <br>
+
+            <b>TERMS OF DELIVERY & PAYMENT</b>
+
+            {{ payment_terms.terms }}
+
+        </td>
+
+    </tr>
+
+</table>
+
+<br>
+
+<!--  ITEMS  -->
+
+<table class="border items">
+
+    <tr>
+
+        <th width="5%">S.No.</th>
+
+        <th width="43%">
+            Description
+        </th>
+
+        <th width="12%">
+            Delivery
+        </th>
+
+        <th width="10%">
+            Unit
+        </th>
+
+        <th width="8%">
+            Qty
+        </th>
+
+        <th width="11%">
+            Price
+        </th>
+
+        <th width="11%">
+            Amount
+        </th>
+
+    </tr>
+
+    {% for item in doc.items %}
+
+    <tr>
+
+        <td class="center">
+            {{ loop.index }}
+        </td>
+
+        <td>
+
+            {{ item.item_name }}
+
+            {% if item.gst_hsn_code %}
+            <br>
+            HSN : {{ item.gst_hsn_code }}
+            {% endif %}
+
+        </td>
+
+        <td class="center">
+            {{ item.custom_delivery_date_range or "-" }}
+        </td>
+
+        <td class="center">
+            {{ item.uom }}
+        </td>
+
+        <td class="center">
+            {{ item.qty }}
+        </td>
+
+        <td class="right">
+            {{ frappe.utils.fmt_money(item.rate) }}
+        </td>
+
+        <td class="right">
+            {{ frappe.utils.fmt_money(item.amount) }}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    <tr>
+
+        <td colspan="4" class="right bold">
+            TOTAL
+        </td>
+
+        <td class="center bold">
+
+            {{
+            doc.items
+            | map(attribute='qty')
+            | sum
+            }}
+
+        </td>
+
+        <td></td>
+
+        <td class="right bold">
+
+            {{ frappe.utils.fmt_money(doc.grand_total) }}
+
+        </td>
+
+    </tr>
+
+</table>
+
+<br>
+
+<!-- FOOTER -->
+
+<table class="border">
+
+    <tr>
+
+        <td width="60%">
+
+            <b>Declaration</b>
+
+            <br><br>
+            {{ declaration.terms }}
+
+        </td>
+
+        <td width="40%">
+
+            <b>Signature & Date</b>
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="height:50px;">
+            {% endif %}
+
+            <div class="signature"></div>
+
+            <div class="center">
+                <br><br>
+
+                <b>AUTHORISED SIGNATORY</b>
+
+            </div>
+
+        </td>
+
+    </tr>
+
+</table>

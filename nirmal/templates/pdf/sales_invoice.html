@@ -1,0 +1,401 @@
+<style>
+    @page {
+        size: A4;
+        margin: 18mm;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #000;
+        line-height: 1.35;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .border td,
+    .border th {
+        border: 1px solid #000;
+        padding: 5px;
+        vertical-align: top;
+    }
+
+    .header td {
+        border: none;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .small {
+        font-size: 10px;
+    }
+
+    .company-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #666;
+        letter-spacing: .5px;
+    }
+
+    .footer {
+        margin-top: 45px;
+        padding-top: 10px;
+        font-size: 13px;
+        color: #444;
+        text-align: left;
+    }
+
+    .footer-title {
+        border-bottom: 1px solid #999;
+        display: block;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+</style>
+
+{% set company = frappe.get_doc("Company", doc.company) %}
+
+{% if company.company_logo %}
+<img src="{{ company.company_logo }}" style="height:70px;">
+{% endif %}
+
+<br>
+
+<table class="border" style="width:55%;">
+    <tr>
+        <td width="30%"><b>Ref. No.</b></td>
+        <td>{{ doc.custom_quotation_no or "" }}</td>
+    </tr>
+
+    <tr>
+        <td><b>Date</b></td>
+        <td>{{ frappe.utils.formatdate(doc.posting_date) }}</td>
+    </tr>
+</table>
+
+<br>
+
+<div style="font-size:13px;">
+
+    <b>{{ doc.customer_name }}</b>
+
+    <br>
+
+    {% if doc.customer_address %}
+    {% set addr = frappe.get_doc("Address", doc.customer_address) %}
+
+    {{ addr.address_line1 }}<br>
+
+    {% if addr.address_line2 %}
+    {{ addr.address_line2 }}<br>
+    {% endif %}
+
+    {{ addr.city }}
+    {{ addr.state }}
+
+    {% endif %}
+
+</div>
+
+<br><br>
+
+<div class="center">
+
+    <b>Kind Attn. :</b>
+
+    <br>
+
+    <b>
+        Sub. : Dispatch Documents - Only E-Mail Intimation
+    </b>
+
+</div>
+
+<br>
+
+Dear Sir,
+
+<br><br>
+
+We are pleased to inform you that we have dispatched the following items against your Purchase Order as per below
+details.
+
+<br><br>
+
+<!-- Item Table -->
+<table class="border">
+
+    <tr>
+
+        <th width="6%">
+            S.No.
+        </th>
+
+        <th width="22%">
+            Invoice No / Date / Amount
+        </th>
+
+        <th>
+            Description
+        </th>
+
+        <th width="10%">
+            Qty.
+        </th>
+
+        <th width="18%">
+            Your P.O. No. & Date
+        </th>
+
+    </tr>
+
+    {% for item in doc.items %}
+
+    <tr>
+
+        <td align="center">
+            {{ loop.index }}
+        </td>
+
+        <td>
+
+            Invoice No.<br>
+
+            {{ doc.custom_invoice_no or "" }}
+
+            <br>
+
+            Dated :
+
+            {{ frappe.utils.formatdate(doc.transaction_date) }}
+
+            <br>
+
+            Rs.
+
+        </td>
+
+        <td>
+
+            <b>{{ item.item_name }}</b>
+
+            {% if item.description %}
+            <br><br>
+            {{ item.description }}
+            {% endif %}
+
+        </td>
+
+        <td align="center">
+
+            {{ item.qty }}
+
+            {{ item.uom }}
+
+        </td>
+
+        <td align="center">
+
+            {{ doc.po_no or "" }}
+
+            <br>
+
+            {{ frappe.utils.formatdate(doc.po_date) if doc.po_date else "" }}
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<br><br>
+
+<p>
+    Please find enclosed herewith the following dispatch documents for your doing the needful.
+</p>
+
+<p>
+    01. Invoice No.
+    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+        {{ doc.name }}
+    </span>
+
+    &nbsp;&nbsp; Dated
+
+    <span style="display:inline-block; min-width:140px; border-bottom:1px solid #000;">
+        {{ frappe.utils.formatdate(doc.posting_date) }}
+    </span>
+</p>
+
+<p>
+    02. Dispatched through M/s
+
+    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+        {{ doc.driver_name or "" }}
+    </span>
+
+    &nbsp;&nbsp; L.R. No.
+
+    <span style="display:inline-block; min-width:150px; border-bottom:1px solid #000;">
+        {{ doc.vehicle_no or "" }}
+    </span>
+
+    &nbsp;&nbsp; Dated
+
+    <span style="display:inline-block; min-width:120px; border-bottom:1px solid #000;">
+        {{ frappe.utils.formatdate(doc.lr_date) or "" }}
+    </span>
+</p>
+
+<p>
+    Packed in
+
+    <span style="display:inline-block; min-width:140px; border-bottom:1px solid #000;"></span>
+
+    Wooden Boxes booked to
+
+    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+        {{ doc.customer_name }}
+    </span>
+
+    on To Pay Basis.
+</p>
+
+<p>
+    03. Original Documents sent along with the consignment.
+</p>
+
+<p>
+    Kindly take the delivery of the above consignment from M/s
+
+    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+        {{ doc.driver_name or "" }}
+    </span>
+
+    and arrange to release the payment at the earliest.
+</p>
+
+<p>
+    Thanking you and committed to serve you the best.
+</p>
+
+<br><br>
+
+<p>Yours Faithfully,</p>
+
+<br><br><br>
+
+<b>For {{ doc.company }}</b>
+
+<br><br><br>
+
+Authorised Signatory
+
+<br><br>
+
+Encl. As above
+
+{% set contact_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Contact"
+},
+fields=["parent"]
+) %}
+
+{% set phones = [] %}
+{% set emails = [] %}
+
+{% for link in contact_links %}
+{% set contact = frappe.get_doc("Contact", link.parent) %}
+
+{% if contact.phone %}
+{% if phones.append(contact.phone) %}{% endif %}
+{% endif %}
+
+{% if contact.mobile_no %}
+{% if phones.append(contact.mobile_no) %}{% endif %}
+{% endif %}
+
+{% if contact.email_id %}
+{% if emails.append(contact.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if not phones and company.phone_no %}
+{% if phones.append(company.phone_no) %}{% endif %}
+{% endif %}
+
+{% if not emails and company.email %}
+{% if emails.append(company.email) %}{% endif %}
+{% endif %}
+
+
+{% set address_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Address"
+},
+fields=["parent"],
+limit=1
+) %}
+
+{% if address_links %}
+{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{% endif %}
+
+<!-- FOOTER -->
+<div class="footer">
+
+    <div class="footer-title">
+        SERVING FROM GENERATIONS
+    </div>
+
+    {% if addr %}
+    <div>
+        {{ addr.address_line1 }},
+        {% if addr.address_line2 %}
+        {{ addr.address_line2 }},
+        {% endif %}
+        {{ addr.state }}, {{ addr.pincode }}
+    </div>
+    {% endif %}
+
+    {% if phones %}
+    <div>
+        Phone: {{ phones | unique | join(", ") }}
+    </div>
+    {% endif %}
+
+    {% if emails %}
+    <div>
+        Email: {{ emails | unique | join(", ") }}
+    </div>
+    {% endif %}
+
+    <div>
+        Website: {{ company.website or "" }}
+    </div>
+
+</div>

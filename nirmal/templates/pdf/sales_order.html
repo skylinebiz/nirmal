@@ -1,0 +1,342 @@
+<style>
+    @page {
+        size: A4;
+        margin: 18mm;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #000;
+        line-height: 1.35;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .border td,
+    .border th {
+        border: 1px solid #000;
+        padding: 5px;
+        vertical-align: top;
+    }
+
+    .header td {
+        border: none;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .small {
+        font-size: 10px;
+    }
+
+    .company-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #666;
+        letter-spacing: .5px;
+    }
+
+    .footer {
+        margin-top: 45px;
+        border-top: 1px solid #999;
+        padding-top: 10px;
+        font-size: 10px;
+        text-align: center;
+        color: #444;
+    }
+</style>
+
+{% set company = frappe.get_doc("Company", doc.company) %}
+
+<table class="header">
+
+    <tr>
+
+        <td width="15%">
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="height:70px;">
+            {% endif %}
+        </td>
+
+        <td class="center">
+
+            <div class="company-name">
+                {{ company.company_name }}
+            </div>
+
+        </td>
+
+    </tr>
+
+</table>
+
+<br>
+
+{% set quotation = "" %}
+
+{% if doc.items and doc.items[0].prevdoc_docname %}
+{% set quotation = doc.items[0].prevdoc_docname %}
+{% endif %}
+
+<table class="border" style="width:55%;">
+
+    <tr>
+        <td width="30%"><b>Ref. No.</b></td>
+        <td>{{ quotation }}</td>
+    </tr>
+
+    <tr>
+        <td><b>Date</b></td>
+        <td>{{ frappe.utils.formatdate(doc.transaction_date) }}</td>
+    </tr>
+
+</table>
+
+<br>
+
+<div style="font-size:13px;">
+
+    <b>{{ doc.customer_name }}</b>
+
+    <br>
+
+    {% if doc.customer_address %}
+    {% set addr = frappe.get_doc("Address", doc.customer_address) %}
+
+    {{ addr.address_line1 }}<br>
+
+    {% if addr.address_line2 %}
+    {{ addr.address_line2 }}<br>
+    {% endif %}
+
+    {{ addr.city }}
+    {{ addr.state }}
+
+    {% endif %}
+
+</div>
+
+<br><br>
+
+<div class="center">
+
+    <b>Kind Attn. :</b>
+
+    <br>
+
+    <b>
+        Sub. : Dispatch Documents
+    </b>
+
+</div>
+
+<br>
+
+Dear Sir,
+
+<br><br>
+
+We are pleased to inform you that we have dispatched the following items against your Purchase Order as per below
+details.
+
+<br><br>
+
+<table class="border">
+
+    <tr>
+
+        <th width="6%">
+            S.No.
+        </th>
+
+        <th width="22%">
+            Invoice No / Date / Amount
+        </th>
+
+        <th>
+            Description
+        </th>
+
+        <th width="10%">
+            Qty.
+        </th>
+
+        <th width="18%">
+            Your P.O. No. & Date
+        </th>
+
+    </tr>
+
+    {% for item in doc.items %}
+
+    <tr>
+
+        <td align="center">
+            {{ loop.index }}
+        </td>
+
+        <td>
+
+            Invoice No.<br>
+
+            {{ doc.custom_invoice_no or "" }}
+
+            <br>
+
+            Dated :
+
+            {{ frappe.utils.formatdate(doc.transaction_date) }}
+
+            <br>
+
+            Rs.
+
+        </td>
+
+        <td>
+
+            <b>{{ item.item_name }}</b>
+
+            {% if item.description %}
+            <br><br>
+            {{ item.description }}
+            {% endif %}
+
+        </td>
+
+        <td align="center">
+
+            {{ item.qty }}
+
+            {{ item.uom }}
+
+        </td>
+
+        <td align="center">
+
+            {{ doc.po_no or "" }}
+
+            <br>
+
+            {{ frappe.utils.formatdate(doc.po_date) if doc.po_date else "" }}
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<br><br>
+
+Please find enclosed herewith the following dispatch documents for your doing the needful.
+
+<br><br>
+
+01. Invoice No. _______________________
+
+&nbsp;&nbsp;
+
+Dated _______________________
+
+<br><br>
+
+02. Dispatched through M/s _______________________
+
+&nbsp;&nbsp;
+
+L.R. No. _______________________
+
+&nbsp;&nbsp;
+
+Dated _______________________
+
+<br><br>
+
+Packed in _______________________
+
+Wooden Boxes booked to _______________________ on To Pay Basis.
+
+<br><br>
+
+03. Original Documents sent along with the consignment.
+
+<br><br>
+
+Kindly take the delivery of the above consignment from M/s ______________________ and arrange to release the payment at
+the earliest.
+
+<br><br>
+
+Thanking you and committed to serve you the best.
+
+<br><br><br>
+
+Yours Faithfully,
+
+<br><br><br>
+
+<b>For {{ doc.company }}</b>
+
+<br><br><br>
+
+Authorised Signatory
+
+<br><br>
+
+Encl. As above
+
+<div class="footer">
+
+    <b>SERVING FROM GENERATIONS</b>
+
+    <br><br>
+
+    {% if company.company_address %}
+    {% set caddr = frappe.get_doc("Address", company.company_address) %}
+
+    {{ caddr.address_line1 }}
+
+    {% if caddr.address_line2 %}
+    , {{ caddr.address_line2 }}
+    {% endif %}
+
+    <br>
+
+    {{ caddr.city }},
+    {{ caddr.state }}
+    {{ caddr.pincode }}
+
+    {% endif %}
+
+    <br>
+
+    Phone :
+    {{ company.phone_no or "" }}
+
+    <br>
+
+    Email :
+    {{ company.email or "" }}
+
+    <br>
+
+    Website :
+    {{ company.website or "" }}
+
+</div>
