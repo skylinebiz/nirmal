@@ -193,7 +193,7 @@ details.
 
         <td>
 
-            
+
             <b>{{ item.item_name }}: {{item.item_code}} </b>
 
             {% if item.description %}
@@ -212,14 +212,16 @@ details.
         </td>
 
         <td align="center">
+            {% set so_name = item.sales_order or item.against_sales_order %}
 
-            {% if item.sales_order %}
-            {% set so = frappe.get_doc("Sales Order", item.sales_order) %}
-            {{ so.po_no or "" }}
-            <br>
-            {{ frappe.utils.formatdate(so.po_date) if so.po_date else "" }}
+            {% if so_name %}
+            {% set so = frappe.get_doc("Sales Order", so_name) %}
             {% endif %}
 
+            {{ (so.po_no if so_name and so.po_no else doc.po_no) or "" }}
+            <br>
+            {{ frappe.utils.formatdate(so.po_date if so_name and so.po_date else doc.po_date) if (so_name and
+            so.po_date) or doc.po_date else "" }}
         </td>
 
     </tr>
