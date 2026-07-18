@@ -74,6 +74,14 @@ override_whitelisted_methods = {
     # Sales Invoice ← Quotation
     # "erpnext.selling.doctype.quotation.quotation.make_sales_invoice":
     #     "nirmal.quotation.make_sales_invoice",
+
+    # Delivery Note ← Sales Order
+    "erpnext.selling.doctype.sales_order.sales_order.make_delivery_note":
+        "nirmal.quotation.make_delivery_note",
+
+    # Delivery Note ← Sales Invoice
+    "erpnext.accounts.doctype.sales_invoice.sales_invoice.make_delivery_note":
+        "nirmal.quotation.make_delivery_note_from_sales_invoice",
 }
 
 # Svg Icons
