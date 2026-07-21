@@ -58,7 +58,7 @@ doctype_js = {
 doc_events = {
     "Quotation": {
         # "after_insert": "nirmal.quotation.generate_reference_number"
-        # "autoname": "nirmal.quotation.quotation_autoname"
+        "autoname": "nirmal.quotation.quotation_autoname"
     }
 }
 
