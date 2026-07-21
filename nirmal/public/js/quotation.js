@@ -54,15 +54,6 @@ async function load_delivery_range(frm) {
 }
 
 frappe.ui.form.on("Quotation", {
-    refresh(frm) {
-        // New document -> read only
-        frm.set_df_property(
-            "custom_reference_number",
-            "read_only",
-            frm.is_new() ? 1 : 0
-        );
-    },
-
     custom_delivery_date_range(frm) {
         update_delivery_details(frm);
     },
