@@ -18,8 +18,8 @@
     .border td,
     .border th {
         border: 1px solid #000;
-        padding: 4px;
         vertical-align: top;
+        line-height: 1.05;
     }
 
     .center {
@@ -57,6 +57,21 @@
 
     .page-break {
         page-break-after: always;
+    }
+
+    .ql-editor {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        line-height: 1 !important;
+    }
+
+    .ql-editor p {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
     }
 </style>
 
@@ -116,80 +131,88 @@ fields=["parent"]
 {% if emails.append(company.email) %}{% endif %}
 {% endif %}
 
+
 <table class="border">
     <tr>
-        <td>
-
+        <td style="padding:0;">
             {% if company.company_logo %}
-            <img src="{{ company.company_logo }}" style="height:50px;">
+            <img src="{{ company.company_logo }}" style="width:100%; height:100px;">
             {% endif %}
+
 
             {% if company.registration_details %}
             <div class="center">{{ company.registration_details }}</div>
             {% endif %}
 
-            <div class="center">
+            <div class="center" style="line-height:1.0;">
+
                 {% if addr %}
-                <div>
+                <div style="margin:0;">
                     {{ addr.address_line1 }},
                     {% if addr.address_line2 %}
                     {{ addr.address_line2 }},
                     {% endif %}
-
                     {{ addr.state }}, {{ addr.pincode }}
                 </div>
                 {% endif %}
 
                 {% if phones %}
-                <div>
+                <div style="margin:0;">
                     Phone: {{ phones | unique | join(", ") }}
                 </div>
                 {% endif %}
 
                 {% if emails %}
-                <div>
+                <div style="margin:0;">
                     Email: {{ emails | unique | join(", ") }}
                 </div>
                 {% endif %}
 
                 {% if company.website %}
-                <div>W: {{ company.website }}</div>
+                <div style="margin:0;">
+                    W: {{ company.website }}
+                </div>
                 {% endif %}
 
                 {% if company.gstin %}
-                <div>GSTIN: {{ company.gstin }}</div>
+                <div style="margin:0;">
+                    GSTIN: {{ company.gstin }}
+                </div>
                 {% endif %}
-            </div>
 
 
-            <hr>
-
-            <h3 class="center">
-                QUOTATION CUM PERFORMA INVOICE
-            </h3>
-
-            <div class="center">
-                <b>No.</b> {{ doc.name }}
-                &nbsp;&nbsp;&nbsp;
-                <b>Dated :</b>
-                {{ frappe.utils.formatdate(doc.transaction_date) }}
             </div>
 
         </td>
     </tr>
+    <td>
+
+
+        <h3 class="center" style="margin: 0;">
+            QUOTATION CUM PERFORMA INVOICE
+        </h3>
+
+        <div class="center padding:0" style="line-height:1.0;">
+            <b>No.</b> {{ doc.name }}
+            &nbsp;&nbsp;&nbsp;
+            <b>Dated :</b>
+            {{ frappe.utils.formatdate(doc.transaction_date) }}
+        </div>
+    </td>
+    <tr>
+
+    </tr>
 </table>
 
 <!--  BUYER + TERMS  -->
-{% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
-{% set payment_terms = frappe.get_doc("Terms and Conditions", "Payment Terms") %}
 
 <table class="border">
 
-    <tr>
+    <tr style="padding:0;">
 
-        <td width="50%">
+        <td width="50%" style="padding:0;">
 
-            <b>Buyer</b><br><br>
+            <b>Buyer</b><br>
 
             {{ doc.customer_name }}<br>
 
@@ -206,28 +229,32 @@ fields=["parent"]
             {{ customer_address.pincode }}<br>
 
             State Code :
-            {{ customer_address.gst_state_number }}
+            {{ customer_address.gst_state_number }}<br>
+            Phone: {{ customer_address.phone }}<br>
 
+            {% endif %}
+
+
+            {% if doc.billing_address_gstin %}
+            GST: {{ doc.billing_address_gstin }}
             {% endif %}
 
         </td>
 
         <td width="50%">
-
             Buyer's Purchase Enquiry No.<br>
-
             {{ doc.po_no or "" }}
 
             Enquiry Date :
+            {{ frappe.utils.formatdate(doc.po_date) }}<br>
 
-            {{ frappe.utils.formatdate(doc.po_date) }}
+            <div style="border-top:1px solid #000; margin-top:0px; padding-top:0px;">
+                <b>{{ doc.tc_name }}</b>
+            </div>
 
-            <br>
-
-            <b>TERMS OF DELIVERY & PAYMENT</b>
-
-            {{ payment_terms.terms }}
-
+            <div style="margin:0; padding:0; line-height:1;">
+                {{ doc.terms }}
+            </div>
         </td>
 
     </tr>
@@ -239,33 +266,31 @@ fields=["parent"]
 <table class="border items">
 
     <tr>
+        <th width="1%" style="text-align:center; color:#000;">S.No.</th>
 
-        <th width="5%">S.No.</th>
-
-        <th width="43%">
-            Description
+        <th width="43%" style="text-align:center; color:#000;">
+            <b>Description</b>
         </th>
 
-        <th width="12%">
-            Delivery
+        <th width="12%" style="text-align:center; color:#000;">
+            <b>Delivery</b>
         </th>
 
-        <th width="10%">
-            Unit
+        <th width="10%" style="text-align:center; color:#000;">
+            <b>Unit</b>
         </th>
 
-        <th width="8%">
-            Qty
+        <th width="8%" style="text-align:center; color:#000;">
+            <b>Qty</b>
         </th>
 
-        <th width="11%">
-            Price
+        <th width="13%" style="text-align:center; color:#000;">
+            <b>Price</b>
         </th>
 
-        <th width="11%">
-            Amount
+        <th width="15%" style="text-align:center; color:#000;">
+            <b>Amount</b>
         </th>
-
     </tr>
 
     {% for item in doc.items %}
@@ -287,7 +312,7 @@ fields=["parent"]
 
         </td>
 
-        <td class="center">
+        <td class="center" style="white-space: nowrap;">
             {{ item.custom_delivery_date_range or "-" }}
         </td>
 
@@ -296,7 +321,9 @@ fields=["parent"]
         </td>
 
         <td class="center">
-            {{ item.qty }}
+            <!-- {{ item.qty|int if item.qty == item.qty|int else item.qty }}
+               -->
+            {{ "{:g}".format(item.qty) }}
         </td>
 
         <td class="right">
@@ -312,34 +339,80 @@ fields=["parent"]
     {% endfor %}
 
     <tr>
+        <td colspan="7"></td>
+    </tr>
+
+    <!-- Sub Total and total qty -->
+    <tr>
 
         <td colspan="4" class="right bold">
-            TOTAL
+            Total
         </td>
 
         <td class="center bold">
 
-            {{
-            doc.items
-            | map(attribute='qty')
-            | sum
-            }}
+            {{ "{:g}".format(doc.total_qty) }}
 
         </td>
 
-        <td></td>
+        <td> <b>Sub Total</b> </td>
 
-        <td class="right bold">
+        <td class="right bold" style="white-space: nowrap;">
 
-            {{ frappe.utils.fmt_money(doc.grand_total) }}
-
+            {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency)}}
         </td>
 
+    </tr>
+
+    <!-- Taxes -->
+    {% if doc.taxes %}
+
+    {% for tax in doc.taxes %}
+    <tr>
+        <td colspan="6" class="right">
+            {{ tax.description or tax.account_head }}
+            ({{ "{:g}".format(tax.rate) }}%)</td>
+        <td class="right" style="white-space: nowrap;">
+            {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
+        </td>
+    </tr>
+    {% endfor %}
+
+    {% endif %}
+
+    <!-- Discount -->
+    {% if doc.discount_amount %}
+    <tr>
+        <td colspan="6" class="right">
+            Discount
+            {% if doc.additional_discount_percentage %}
+            ({{ doc.additional_discount_percentage }}%)
+            {% endif %}
+        </td>
+        <td class="right">
+            -{{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) }}
+        </td>
+    </tr>
+    {% endif %}
+
+    <!-- Grand total -->
+    <tr>
+        <td colspan="6" class="right">
+            <b>Grand Total</b>
+            <br>
+            <span style="font-size: 10px; font-weight: normal;">
+                {{ doc.in_words }}
+            </span>
+        </td>
+        <td class="right">
+            <b>{{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}</b>
+        </td>
     </tr>
 
 </table>
 
 <!-- FOOTER -->
+{% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
 
 <table class="border">
 
@@ -347,10 +420,13 @@ fields=["parent"]
 
         <td width="60%">
 
-            <b>Declaration</b>
+            <div class="center">
 
-            <br><br>
-            {{ declaration.terms }}
+                <b>Declaration</b>
+
+                <br><br>
+                {{ declaration.terms }}
+            </div>
 
         </td>
 
@@ -360,8 +436,6 @@ fields=["parent"]
             {% if company.company_logo %}
             <img src="{{ company.company_logo }}" style="height:50px;">
             {% endif %}
-
-            <div class="signature"></div>
 
             <div class="center">
                 <br><br>
