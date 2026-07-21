@@ -19,6 +19,9 @@ from erpnext.accounts.doctype.sales_invoice.sales_invoice import (
     make_delivery_note as erpnext_make_delivery_note_from_si,
 )
 
+from frappe.model.naming import make_autoname
+
+
 COMPANY_PREFIX = "NGI"
 
 def generate_reference_number(doc, method=None):
@@ -58,20 +61,31 @@ def generate_reference_number(doc, method=None):
     doc.custom_reference_number = reference
 
 
+# def quotation_autoname(doc, method=None):
+#     customer_alias = (
+#         frappe.db.get_value("Customer", doc.customer_name, "alias")
+#         or "CID"
+#     )
+
+#     fiscal_year = get_fiscal_year(
+#         doc.transaction_date,
+#         company=doc.company
+#     )[0]
+
+#     sequence = getseries("NGI-QTN-", 5)
+
+#     doc.name = f"NGI/{customer_alias}/Q/{fiscal_year}/{sequence}"
+
 def quotation_autoname(doc, method=None):
-    customer_alias = (
-        frappe.db.get_value("Customer", doc.customer_name, "alias")
-        or "CID"
-    )
+    naming_series = doc.naming_series or ""
 
-    fiscal_year = get_fiscal_year(
-        doc.transaction_date,
-        company=doc.company
-    )[0]
+    if "CUST" in naming_series and doc.custom_customer_alias:
+        naming_series = naming_series.replace(
+            "CUST",
+            doc.custom_customer_alias
+        )
 
-    sequence = getseries("NGI-QTN-", 5)
-
-    doc.name = f"NGI/{customer_alias}/Q/{fiscal_year}/{sequence}"
+    doc.name = make_autoname(naming_series, doc=doc)
 
 @frappe.whitelist()
 def make_sales_order(source_name, target_doc=None, args=None):
