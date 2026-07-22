@@ -55,13 +55,6 @@ doctype_js = {
 
 }
 
-doc_events = {
-    "Quotation": {
-        # "after_insert": "nirmal.quotation.generate_reference_number"
-        "autoname": "nirmal.quotation.quotation_autoname"
-    }
-}
-
 override_whitelisted_methods = {
     # Sales Order ← Quotation
     "erpnext.selling.doctype.quotation.quotation.make_sales_order":
