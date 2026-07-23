@@ -61,7 +61,7 @@ frappe.ui.form.on("Quotation", {
     items_add(frm) {
         update_delivery_details(frm);
     },
-    
+
     party_name(frm) {
         if (!frm.doc.party_name) {
             frm.set_value("custom_customer_alias", "");

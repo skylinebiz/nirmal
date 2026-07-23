@@ -52,7 +52,6 @@ doctype_js = {
     "Quotation": "public/js/quotation.js",
     "Sales Order": "public/js/quotation.js",
     "Sales Invoice": "public/js/quotation.js"
-
 }
 
 override_whitelisted_methods = {
@@ -76,6 +75,14 @@ override_whitelisted_methods = {
     "erpnext.accounts.doctype.sales_invoice.sales_invoice.make_delivery_note":
         "nirmal.quotation.make_delivery_note_from_sales_invoice",
 }
+
+
+fixtures = [
+    {
+        "dt": "Letter Head",
+        "filters": [["name", "in", ["Nirmal Quotation"]]]
+    }
+]
 
 # Svg Icons
 # ------------------
