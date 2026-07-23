@@ -79,12 +79,30 @@
         padding: 0 !important;
     }
 
+
+    .items {
+        page-break-inside: auto;
+    }
+
+    .items tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    .items td {
+        page-break-inside: avoid;
+    }
+
     thead {
         display: table-header-group;
     }
 
     tfoot {
         display: table-footer-group;
+    }
+
+    .items {
+        border-collapse: collapse;
     }
 </style>
 
@@ -256,9 +274,13 @@
         {% endfor %}
     </tbody>
 
-    <tr>
-        <td colspan="7"></td>
-    </tr>
+    <td colspan="7"> </td>
+
+
+</table>
+
+
+<table class="border totals">
 
     <!-- Sub Total and total qty -->
     <tr>
@@ -267,15 +289,15 @@
             Total
         </td>
 
-        <td class="center bold">
+        <td colspan="1" class="center bold">
 
             {{ "{:g}".format(doc.total_qty) }}
 
         </td>
 
-        <td> <b>Sub Total</b> </td>
+        <td colspan="1"> <b>Sub Total</b> </td>
 
-        <td class="right bold" style="white-space: nowrap;">
+        <td colspan="1" class="right bold" style="white-space: nowrap;">
 
             {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency)}}
         </td>
@@ -290,7 +312,7 @@
         <td colspan="6" class="right">
             {{ tax.description or tax.account_head }}
             ({{ "{:g}".format(tax.rate) }}%)</td>
-        <td class="right" style="white-space: nowrap;">
+        <td colspan="1" class="right" style="white-space: nowrap;">
             {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
         </td>
     </tr>
@@ -307,7 +329,7 @@
             ({{ doc.additional_discount_percentage }}%)
             {% endif %}
         </td>
-        <td class="right">
+        <td colspan="1" class="right">
             -{{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) }}
         </td>
     </tr>
@@ -322,7 +344,7 @@
                 {{ doc.in_words }}
             </span>
         </td>
-        <td class="right">
+        <td colspan="1" class="right">
             <b>{{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}</b>
         </td>
     </tr>
