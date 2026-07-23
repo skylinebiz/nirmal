@@ -1,0 +1,138 @@
+{% set company = frappe.get_doc("Company", doc.company) %}
+
+{% set address_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Address"
+},
+fields=["parent"],
+limit=1
+) %}
+
+{% if address_links %}
+{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{% endif %}
+
+
+
+{% set contact_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Contact"
+},
+fields=["parent"]
+) %}
+
+{% set phones = [] %}
+{% set emails = [] %}
+
+{% for link in contact_links %}
+{% set contact = frappe.get_doc("Contact", link.parent) %}
+
+{% if contact.phone %}
+{% if phones.append(contact.phone) %}{% endif %}
+{% endif %}
+
+{% if contact.mobile_no %}
+{% if phones.append(contact.mobile_no) %}{% endif %}
+{% endif %}
+
+{% if contact.email_id %}
+{% if emails.append(contact.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if not phones and company.phone_no %}
+{% if phones.append(company.phone_no) %}{% endif %}
+{% endif %}
+
+{% if not emails and company.email %}
+{% if emails.append(company.email) %}{% endif %}
+{% endif %}
+
+
+<table class="border" style="width:100%; border-collapse:collapse;">
+    <tr>
+        <td style="padding:0;">
+
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="width:100%; height:100px;">
+            {% endif %}
+
+            <!--{% if company.registration_details %}-->
+            <!--<div class="center">-->
+            <!--    {{ company.registration_details }}-->
+            <!--</div>-->
+            <!--{% endif %}-->
+            <div class="center" style="line-height:1.2; margin:2px 0;">
+                <div style="font-weight:bold; font-style:italic;">
+                    (Largest Manufacturer & Exporter in India)
+                </div>
+
+                <div>
+                    National Awarded Company For The Best Exporter In Engineering Industries
+                </div>
+            </div>
+
+            <div class="center" style="line-height:1.0;">
+
+                {% if addr %}
+                <div>
+                    {{ addr.address_line1 }},
+                    {% if addr.address_line2 %}
+                    {{ addr.address_line2 }},
+                    {% endif %}
+                    {{ addr.state }}, {{ addr.pincode }}
+                </div>
+                {% endif %}
+
+                {% if phones %}
+                <div>
+                    Phone: {{ phones | unique | join(", ") }}
+                </div>
+                {% endif %}
+
+                {% if emails %}
+                <div>
+                    Email: {{ emails | unique | join(", ") }}
+                </div>
+                {% endif %}
+
+                {% if company.website %}
+                <div>
+                    W: {{ company.website }}
+                </div>
+                {% endif %}
+
+                {% if company.gstin %}
+                <div>
+                    GSTIN: {{ company.gstin }}
+                </div>
+                {% endif %}
+
+            </div>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td style="background-color: #ffff99; text-align: center;">
+
+            <h3 style="margin:0;">
+                QUOTATION CUM PERFORMA INVOICE local html
+            </h3>
+
+            <div style="line-height:1.0;">
+                <b>No. {{ doc.name }} </b>
+                &nbsp;&nbsp;&nbsp;
+                <b>Dated :
+                    {{ frappe.utils.formatdate(doc.transaction_date) }}
+                </b>
+            </div>
+
+        </td>
+    </tr>
+</table>

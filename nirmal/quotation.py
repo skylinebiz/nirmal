@@ -34,6 +34,8 @@ def make_sales_order(source_name, target_doc=None, args=None):
     sales_order.custom_delivery_start_day = source.custom_delivery_start_day
     sales_order.custom_delivery_end_day = source.custom_delivery_end_day
 
+    sales_order.po_no = source.custom_purchase_enquiry_no
+    sales_order.po_date = source.custom_purchase_enquiry_date
     # Map Quotation Items by quotation_item
     quotation_items = {
         item.name: item for item in source.items

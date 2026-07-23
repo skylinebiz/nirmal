@@ -19,7 +19,7 @@
     .border th {
         border: 1px solid #000;
         vertical-align: top;
-        line-height: 1.05;
+        /* line-height: 2; */
     }
 
     .center {
@@ -71,138 +71,55 @@
     .ql-editor p {
         margin: 0 !important;
         padding: 0 !important;
-        line-height: 1 !important;
+        line-height: 1.4 !important;
+    }
+
+    .letter-head {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+
+    .items {
+        page-break-inside: auto;
+    }
+
+    .items tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    .items td {
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    .items {
+        border-collapse: collapse;
     }
 </style>
 
-<!--  HEADER  -->
-{% set company = frappe.get_doc("Company", doc.company) %}
 
-{% set address_links = frappe.get_all(
-"Dynamic Link",
-filters={
-"link_doctype": "Company",
-"link_name": company.name,
-"parenttype": "Address"
-},
-fields=["parent"],
-limit=1
-) %}
-
-{% if address_links %}
-{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{%- macro add_header(letter_head, no_letterhead) -%}
+{% if letter_head and not no_letterhead %}
+<div class="letter-head" style="margin: 0 !important;">
+    {{ letter_head }}
+</div>
 {% endif %}
+{%- endmacro -%}
 
+<div {% if print_settings and print_settings.repeat_header_footer %} id="header-html" class="hidden-pdf"
+    style="margin: 0 !important;" {% endif %}>
+    {{ add_header(letter_head, no_letterhead) }}
+</div>
 
-
-{% set contact_links = frappe.get_all(
-"Dynamic Link",
-filters={
-"link_doctype": "Company",
-"link_name": company.name,
-"parenttype": "Contact"
-},
-fields=["parent"]
-) %}
-
-{% set phones = [] %}
-{% set emails = [] %}
-
-{% for link in contact_links %}
-{% set contact = frappe.get_doc("Contact", link.parent) %}
-
-{% if contact.phone %}
-{% if phones.append(contact.phone) %}{% endif %}
-{% endif %}
-
-{% if contact.mobile_no %}
-{% if phones.append(contact.mobile_no) %}{% endif %}
-{% endif %}
-
-{% if contact.email_id %}
-{% if emails.append(contact.email_id) %}{% endif %}
-{% endif %}
-{% endfor %}
-{% if not phones and company.phone_no %}
-{% if phones.append(company.phone_no) %}{% endif %}
-{% endif %}
-
-{% if not emails and company.email %}
-{% if emails.append(company.email) %}{% endif %}
-{% endif %}
-
-
-<table class="border">
-    <tr>
-        <td style="padding:0;">
-            {% if company.company_logo %}
-            <img src="{{ company.company_logo }}" style="width:100%; height:100px;">
-            {% endif %}
-
-
-            {% if company.registration_details %}
-            <div class="center">{{ company.registration_details }}</div>
-            {% endif %}
-
-            <div class="center" style="line-height:1.0;">
-
-                {% if addr %}
-                <div style="margin:0;">
-                    {{ addr.address_line1 }},
-                    {% if addr.address_line2 %}
-                    {{ addr.address_line2 }},
-                    {% endif %}
-                    {{ addr.state }}, {{ addr.pincode }}
-                </div>
-                {% endif %}
-
-                {% if phones %}
-                <div style="margin:0;">
-                    Phone: {{ phones | unique | join(", ") }}
-                </div>
-                {% endif %}
-
-                {% if emails %}
-                <div style="margin:0;">
-                    Email: {{ emails | unique | join(", ") }}
-                </div>
-                {% endif %}
-
-                {% if company.website %}
-                <div style="margin:0;">
-                    W: {{ company.website }}
-                </div>
-                {% endif %}
-
-                {% if company.gstin %}
-                <div style="margin:0;">
-                    GSTIN: {{ company.gstin }}
-                </div>
-                {% endif %}
-
-
-            </div>
-
-        </td>
-    </tr>
-    <td>
-
-
-        <h3 class="center" style="margin: 0;">
-            QUOTATION CUM PERFORMA INVOICE
-        </h3>
-
-        <div class="center padding:0" style="line-height:1.0;">
-            <b>No.</b> {{ doc.name }}
-            &nbsp;&nbsp;&nbsp;
-            <b>Dated :</b>
-            {{ frappe.utils.formatdate(doc.transaction_date) }}
-        </div>
-    </td>
-    <tr>
-
-    </tr>
-</table>
 
 <!--  BUYER + TERMS  -->
 
@@ -242,17 +159,27 @@ fields=["parent"]
         </td>
 
         <td width="50%">
-            Buyer's Purchase Enquiry No.<br>
-            {{ doc.po_no or "" }}
+            <div>Buyer's Purchase Enquiry No:
+                <span>
+                    {{ doc.custom_purchase_enquiry_no or "" }}
+                </span>
+            </div>
 
-            Enquiry Date :
-            {{ frappe.utils.formatdate(doc.po_date) }}<br>
+            <div style="margin-top:4px;">Enquiry Date:
 
-            <div style="border-top:1px solid #000; margin-top:0px; padding-top:0px;">
+                <span>
+
+                    {{ frappe.utils.formatdate(doc.custom_purchase_enquiry_date) if doc.custom_purchase_enquiry_date
+                    else "" }}
+                </span>
+            </div>
+
+
+            <div style="border-top:1px solid #000; margin-top:4px; padding-top:2px;">
                 <b>{{ doc.tc_name }}</b>
             </div>
 
-            <div style="margin:0; padding:0; line-height:1;">
+            <div style="line-height:2;">
                 {{ doc.terms }}
             </div>
         </td>
@@ -265,82 +192,95 @@ fields=["parent"]
 
 <table class="border items">
 
-    <tr>
-        <th width="1%" style="text-align:center; color:#000;">S.No.</th>
+    <thead>
 
-        <th width="43%" style="text-align:center; color:#000;">
-            <b>Description</b>
-        </th>
+        <tr>
+            <th width="1%" style="text-align:center; color:#000; background-color: #ffff99;">S.No.</th>
 
-        <th width="12%" style="text-align:center; color:#000;">
-            <b>Delivery</b>
-        </th>
+            <th width="43%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Description</b>
+            </th>
 
-        <th width="10%" style="text-align:center; color:#000;">
-            <b>Unit</b>
-        </th>
+            <th width="12%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Delivery</b>
+            </th>
 
-        <th width="8%" style="text-align:center; color:#000;">
-            <b>Qty</b>
-        </th>
+            <th width="10%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Unit</b>
+            </th>
 
-        <th width="13%" style="text-align:center; color:#000;">
-            <b>Price</b>
-        </th>
+            <th width="8%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Qty</b>
+            </th>
 
-        <th width="15%" style="text-align:center; color:#000;">
-            <b>Amount</b>
-        </th>
-    </tr>
+            <th width="13%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Price</b>
+            </th>
 
-    {% for item in doc.items %}
+            <th width="15%" style="text-align:center; color:#000; background-color: #ffff99;">
+                <b>Amount</b>
+            </th>
+        </tr>
+    </thead>
 
-    <tr>
+    <tbody>
 
-        <td class="center">
-            {{ loop.index }}
-        </td>
+        {% for item in doc.items %}
 
-        <td>
+        <tr>
 
-            {{ item.item_name }}
+            <td class="center">
+                {{ loop.index }}
+            </td>
 
-            {% if item.gst_hsn_code %}
-            <br>
-            HSN : {{ item.gst_hsn_code }}
-            {% endif %}
+            <td>
 
-        </td>
+                <div>
+                    {{ item.item_name }}
 
-        <td class="center" style="white-space: nowrap;">
-            {{ item.custom_delivery_date_range or "-" }}
-        </td>
 
-        <td class="center">
-            {{ item.uom }}
-        </td>
+                </div>
+                <small>
 
-        <td class="center">
-            <!-- {{ item.qty|int if item.qty == item.qty|int else item.qty }}
-               -->
-            {{ "{:g}".format(item.qty) }}
-        </td>
+                    {% if item.gst_hsn_code %}
+                    HSN : {{ item.gst_hsn_code }}
+                    {% endif %}
+                </small>
 
-        <td class="right">
-            {{ frappe.utils.fmt_money(item.rate) }}
-        </td>
+            </td>
 
-        <td class="right">
-            {{ frappe.utils.fmt_money(item.amount) }}
-        </td>
+            <td class="center" style="white-space: nowrap;">
+                {{ item.custom_delivery_date_range or "-" }}
+            </td>
 
-    </tr>
+            <td class="center">
+                {{ item.uom }}
+            </td>
 
-    {% endfor %}
+            <td class="center">
+                {{ "{:g}".format(item.qty) }}
+            </td>
 
-    <tr>
-        <td colspan="7"></td>
-    </tr>
+            <td class="right">
+                {{ frappe.utils.fmt_money(item.rate) }}
+            </td>
+
+            <td class="right">
+                {{ frappe.utils.fmt_money(item.amount) }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+    </tbody>
+
+    <td colspan="7"> </td>
+
+
+</table>
+
+
+<table class="border totals">
 
     <!-- Sub Total and total qty -->
     <tr>
@@ -349,15 +289,15 @@ fields=["parent"]
             Total
         </td>
 
-        <td class="center bold">
+        <td colspan="1" class="center bold">
 
             {{ "{:g}".format(doc.total_qty) }}
 
         </td>
 
-        <td> <b>Sub Total</b> </td>
+        <td colspan="1"> <b>Sub Total</b> </td>
 
-        <td class="right bold" style="white-space: nowrap;">
+        <td colspan="1" class="right bold" style="white-space: nowrap;">
 
             {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency)}}
         </td>
@@ -372,7 +312,7 @@ fields=["parent"]
         <td colspan="6" class="right">
             {{ tax.description or tax.account_head }}
             ({{ "{:g}".format(tax.rate) }}%)</td>
-        <td class="right" style="white-space: nowrap;">
+        <td colspan="1" class="right" style="white-space: nowrap;">
             {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
         </td>
     </tr>
@@ -389,7 +329,7 @@ fields=["parent"]
             ({{ doc.additional_discount_percentage }}%)
             {% endif %}
         </td>
-        <td class="right">
+        <td colspan="1" class="right">
             -{{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) }}
         </td>
     </tr>
@@ -404,48 +344,17 @@ fields=["parent"]
                 {{ doc.in_words }}
             </span>
         </td>
-        <td class="right">
+        <td colspan="1" class="right">
             <b>{{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}</b>
         </td>
     </tr>
 
 </table>
 
-<!-- FOOTER -->
-{% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
 
-<table class="border">
-
-    <tr>
-
-        <td width="60%">
-
-            <div class="center">
-
-                <b>Declaration</b>
-
-                <br><br>
-                {{ declaration.terms }}
-            </div>
-
-        </td>
-
-        <td width="40%">
-
-            <b>Signature & Date</b>
-            {% if company.company_logo %}
-            <img src="{{ company.company_logo }}" style="height:50px;">
-            {% endif %}
-
-            <div class="center">
-                <br><br>
-
-                <b>AUTHORISED SIGNATORY</b>
-
-            </div>
-
-        </td>
-
-    </tr>
-
-</table>
+<!-- Footer -->
+<div id="footer-html" class="visible-pdf">
+    {% if footer and not no_letterhead %}
+    {{ footer }}
+    {% endif %}
+</div>
