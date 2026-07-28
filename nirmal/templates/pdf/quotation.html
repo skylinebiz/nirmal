@@ -193,31 +193,32 @@
 <table class="border items">
 
     <thead>
-
         <tr>
-            <th width="1%" style="text-align:center; color:#000; background-color: #ffff99;">S.No.</th>
+            <th width="1%" style="text-align:center; color:#000; background-color:#d9eaf2;">
+                S.No.
+            </th>
 
-            <th width="43%" style="text-align:center; color:#000; background-color: #ffff99;">
+            <th width="43%" style="text-align:center; color:#000; background-color:#d9eaf2;">
                 <b>Description</b>
             </th>
 
-            <th width="12%" style="text-align:center; color:#000; background-color: #ffff99;">
+            <th width="12%" style="text-align:center; color:#000; background-color:#d9eaf2;">
                 <b>Delivery</b>
             </th>
 
-            <th width="10%" style="text-align:center; color:#000; background-color: #ffff99;">
+            <th width="10%" style="text-align:center; color:#000; background-color:#d9eaf2;">
                 <b>Unit</b>
             </th>
 
-            <th width="8%" style="text-align:center; color:#000; background-color: #ffff99;">
-                <b>Qty</b>
+            <th width="8%" style="text-align:center; color:#000; background-color:#d9eaf2;">
+                <b>Qty.</b>
             </th>
 
-            <th width="13%" style="text-align:center; color:#000; background-color: #ffff99;">
-                <b>Price</b>
+            <th width="13%" style="text-align:center; color:#000; background-color:#d9eaf2;">
+                <b>Price / Each<br>Rs.</b>
             </th>
 
-            <th width="15%" style="text-align:center; color:#000; background-color: #ffff99;">
+            <th width="15%" style="text-align:center; color:#000; background-color:#d9eaf2;">
                 <b>Amount</b>
             </th>
         </tr>
@@ -274,13 +275,6 @@
         {% endfor %}
     </tbody>
 
-    <td colspan="7"> </td>
-
-
-</table>
-
-
-<table class="border totals">
 
     <!-- Sub Total and total qty -->
     <tr>
@@ -339,16 +333,18 @@
     <tr>
         <td colspan="6" class="right">
             <b>Grand Total</b>
-            <br>
-            <span style="font-size: 10px; font-weight: normal;">
-                {{ doc.in_words }}
-            </span>
         </td>
         <td colspan="1" class="right">
             <b>{{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}</b>
         </td>
     </tr>
 
+    <tr>
+        <td colspan="7" style="padding:8px;">
+            <b>Amount in Words in Rs. :</b>
+            {{ doc.in_words }}
+        </td>
+    </tr>
 </table>
 
 
