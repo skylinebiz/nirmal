@@ -177,7 +177,7 @@ details.
 
             Invoice No.<br>
 
-            {{ doc.name or "" }}
+            {{ item.against_sales_invoice or "" }}
 
             <br>
 
@@ -236,51 +236,46 @@ details.
     Please find enclosed herewith the following dispatch documents for your doing the needful.
 </p>
 
+{% set invoices = [] %}
+
+{% for item in doc.items %}
+{% if item.against_sales_invoice and item.against_sales_invoice not in invoices %}
+{% set _ = invoices.append(item.against_sales_invoice) %}
+{% endif %}
+{% endfor %}
+
 <p>
     01. Invoice No.
-    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
-        {{ doc.name }}
-    </span>
-
-    &nbsp;&nbsp; Dated
-
-    <span style="display:inline-block; min-width:140px; border-bottom:1px solid #000;">
-        {{ frappe.utils.formatdate(doc.posting_date) }}
-    </span>
+    <b>{{ invoices | join(", ") }}</b>
+    Dated
+    <b>{{ frappe.utils.formatdate(doc.posting_date) }}</b>
 </p>
 
 <p>
     02. Dispatched through M/s
-
-    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+    <b>
         {{ doc.transporter_name or "" }}
-    </span>
+    </b>
 
-    &nbsp;&nbsp; L.R. No.
-
-    <span style="display:inline-block; min-width:150px; border-bottom:1px solid #000;">
+    L.R. No.
+    <b>
         {{ doc.lr_no or "" }}
-    </span>
+    </b>
 
-    &nbsp;&nbsp; Dated
-
-    <span style="display:inline-block; min-width:120px; border-bottom:1px solid #000;">
+    Dated
+    <b>
         {{ frappe.utils.formatdate(doc.lr_date) or "" }}
-    </span>
-</p>
+    </b>
 
-<p>
     Packed in
-
-    <span style="display:inline-block; min-width:140px; border-bottom:1px solid #000;">
+    <b>
         {{doc.custom_wooden_box_qty}}
-    </span>
+    </b>
 
     Wooden Boxes booked to
-
-    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+    <b>
         {{ doc.customer_name }}
-    </span>
+    </b>
 
     on To Pay Basis.
 </p>
@@ -291,11 +286,9 @@ details.
 
 <p>
     Kindly take the delivery of the above consignment from M/s
-
-    <span style="display:inline-block; min-width:180px; border-bottom:1px solid #000;">
+    <b>
         {{ doc.transporter_name or "" }}
-    </span>
-
+    </b>
     and arrange to release the payment at the earliest.
 </p>
 
@@ -310,6 +303,23 @@ details.
 
 Encl. As above
 
+{# Company Address #}
+{% set address_links = frappe.get_all(
+"Dynamic Link",
+filters={
+"link_doctype": "Company",
+"link_name": company.name,
+"parenttype": "Address"
+},
+fields=["parent"],
+limit=1
+) %}
+
+{% if address_links %}
+{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
+{% endif %}
+
+{# Company Contacts #}
 {% set contact_links = frappe.get_all(
 "Dynamic Link",
 filters={
@@ -326,40 +336,28 @@ fields=["parent"]
 {% for link in contact_links %}
 {% set contact = frappe.get_doc("Contact", link.parent) %}
 
-{% if contact.phone %}
-{% if phones.append(contact.phone) %}{% endif %}
-{% endif %}
-
-{% if contact.mobile_no %}
-{% if phones.append(contact.mobile_no) %}{% endif %}
-{% endif %}
-
-{% if contact.email_id %}
-{% if emails.append(contact.email_id) %}{% endif %}
+{# Contact Numbers #}
+{% for phone in contact.phone_nos %}
+{% if phone.phone %}
+{% if phones.append(phone.phone) %}{% endif %}
 {% endif %}
 {% endfor %}
+
+{# Email IDs #}
+{% for email in contact.email_ids %}
+{% if email.email_id %}
+{% if emails.append(email.email_id) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{# Fallback to Company master if no Contact exists #}
 {% if not phones and company.phone_no %}
 {% if phones.append(company.phone_no) %}{% endif %}
 {% endif %}
 
 {% if not emails and company.email %}
 {% if emails.append(company.email) %}{% endif %}
-{% endif %}
-
-
-{% set address_links = frappe.get_all(
-"Dynamic Link",
-filters={
-"link_doctype": "Company",
-"link_name": company.name,
-"parenttype": "Address"
-},
-fields=["parent"],
-limit=1
-) %}
-
-{% if address_links %}
-{% set addr = frappe.get_doc("Address", address_links[0].parent) %}
 {% endif %}
 
 <!-- FOOTER -->
@@ -375,7 +373,7 @@ limit=1
         {% if addr.address_line2 %}
         {{ addr.address_line2 }},
         {% endif %}
-        {{ addr.state }}, {{ addr.pincode }}
+        {{ addr.city }}, {{ addr.state }}, {{ addr.pincode }}, {{ addr.country }}
     </div>
     {% endif %}
 

@@ -1,0 +1,40 @@
+{% set company = frappe.get_doc("Company", doc.company) %}
+
+<!-- FOOTER -->
+{% set declaration = frappe.get_doc("Terms and Conditions", "Declaration") %}
+
+<table class="border">
+
+    <tr>
+
+        <td width="60%">
+
+            <div class="center">
+
+                <b>Declaration local html</b>
+
+                <br><br>
+                {{ declaration.terms }}
+            </div>
+
+        </td>
+
+        <td width="40%">
+
+            <b>Signature & Date</b>
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo }}" style="height:50px;">
+            {% endif %}
+
+            <div class="center">
+                <br><br>
+
+                <b>AUTHORISED SIGNATORY</b>
+
+            </div>
+
+        </td>
+
+    </tr>
+
+</table>
