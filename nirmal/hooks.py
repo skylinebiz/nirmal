@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -81,6 +81,12 @@ fixtures = [
     {
         "dt": "Letter Head",
         "filters": [["name", "in", ["Nirmal Quotation"]]]
+    },
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["module", "in", ["Nirmal"]]
+        ]
     }
 ]
 
@@ -127,7 +133,7 @@ fixtures = [
 # Uninstallation
 # ------------
 
-# before_uninstall = "nirmal.uninstall.before_uninstall"
+before_uninstall = "nirmal.uninstall.before_uninstall"
 # after_uninstall = "nirmal.uninstall.after_uninstall"
 
 # Integration Setup

@@ -104,6 +104,57 @@
     .items {
         border-collapse: collapse;
     }
+
+    /* .print-format {
+        margin-top: 0mm !important;
+        padding-top: 0mm !important;
+    } */
+
+    /* .print-format .letter-head {
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+    } */
+
+    /* .print-format .row {
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    } */
+
+
+    .items tbody td {
+        padding: 2px 6px;
+        /* Reduce vertical padding */
+        line-height: 1.1;
+        /* Compact text */
+        vertical-align: top;
+    }
+
+    .items tbody td div {
+        margin: 0;
+        padding: 0;
+        line-height: 1.1;
+    }
+
+    .items tbody td small {
+        display: block;
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+    }
+
+    #footer-html {
+        margin-top: 0 !important;
+        padding-top: 10px !important;
+    }
+
+    #footer-html table {
+        margin-top: 0 !important;
+    }
+
+    #footer-html span {
+        display: none;
+        /* remove the test text */
+    }
 </style>
 
 
@@ -348,9 +399,19 @@
 </table>
 
 
-<!-- Footer -->
-<div id="footer-html" class="visible-pdf">
+<div style="height:10px;"></div>
+
+<div {% if print_settings and print_settings.repeat_header_footer %} id="footer-html" class="hidden-pdf"
+    style="margin:0 !important;" {% endif %}>
     {% if footer and not no_letterhead %}
     {{ footer }}
     {% endif %}
 </div>
+
+<!-- Footer -->
+<!-- <div id="footer-html" class="visible-pdf">
+    <span>bsfbsfnsfnsfnfsnfsnfsnfsn</span>
+    {% if footer and not no_letterhead %}
+    {{ footer }}
+    {% endif %}
+</div> -->
