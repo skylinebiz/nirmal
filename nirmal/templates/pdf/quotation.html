@@ -109,15 +109,16 @@
 
 {%- macro add_header(letter_head, no_letterhead) -%}
 {% if letter_head and not no_letterhead %}
-<div class="letter-head" style="margin: 0 !important;">
+<div class="letter-head">
     {{ letter_head }}
 </div>
 {% endif %}
 {%- endmacro -%}
 
+{% for page in layout %}
 <div {% if print_settings and print_settings.repeat_header_footer %} id="header-html" class="hidden-pdf"
     style="margin: 0 !important;" {% endif %}>
-    {{ add_header(letter_head, no_letterhead) }}
+    {{ add_header( letter_head, no_letterhead) }}
 </div>
 
 
@@ -412,3 +413,13 @@
     {{ footer }}
     {% endif %}
 </div>
+
+<!-- Footer -->
+<!-- <div id="footer-html" class="visible-pdf">
+    <span>bsfbsfnsfnsfnfsnfsnfsnfsn</span>
+    {% if footer and not no_letterhead %}
+    {{ footer }}
+    {% endif %}
+</div> -->
+
+{% endfor %}
