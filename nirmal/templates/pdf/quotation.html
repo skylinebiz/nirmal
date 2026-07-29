@@ -241,6 +241,13 @@
 
 <!--  ITEMS  -->
 
+{% set hsn_codes = [] %}
+{% for item in doc.items %}
+{% if item.gst_hsn_code and item.gst_hsn_code not in hsn_codes %}
+{% set _ = hsn_codes.append(item.gst_hsn_code) %}
+{% endif %}
+{% endfor %}
+
 <table class="border items">
 
     <thead>
@@ -251,6 +258,10 @@
 
             <th width="43%" style="text-align:center; color:#000; background-color:#d9eaf2;">
                 <b>Description</b>
+                {% if hsn_codes %}
+                <br>
+                <small>HSN: {{ hsn_codes | join(", ") }}</small>
+                {% endif %}
             </th>
 
             <th width="12%" style="text-align:center; color:#000; background-color:#d9eaf2;">
@@ -286,19 +297,19 @@
             </td>
 
             <td>
-
                 <div>
                     {{ item.item_name }}
-
-
                 </div>
-                <small>
 
-                    {% if item.gst_hsn_code %}
-                    HSN : {{ item.gst_hsn_code }}
+                <small>
+                    {% if item.item_code and item.item_code != item.item_name %}
+                    <div>Part No: {{ item.item_code }}</div>
+                    {% endif %}
+
+                    {% if item.description %}
+                    <div>{{ item.description }}</div>
                     {% endif %}
                 </small>
-
             </td>
 
             <td class="center" style="white-space: nowrap;">
@@ -326,76 +337,123 @@
         {% endfor %}
     </tbody>
 
+    <tbody class="totals">
 
-    <!-- Sub Total and total qty -->
-    <tr>
+        <!-- Total Qty + Sub Total -->
+        <tr>
+            <td colspan="4" class="right bold">
+                Total
+            </td>
 
-        <td colspan="4" class="right bold">
-            Total
-        </td>
+            <td class="center bold">
+                {{ "{:g}".format(doc.total_qty) }}
+            </td>
 
-        <td colspan="1" class="center bold">
+            <td><b>Sub Total</b></td>
 
-            {{ "{:g}".format(doc.total_qty) }}
+            <td class="right bold" style="white-space: nowrap;">
+                {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency) }}
+            </td>
+        </tr>
 
-        </td>
+        {% set ns = namespace(
+        total_before_tax=doc.net_total,
+        before_tax=[],
+        gst=[]
+        ) %}
 
-        <td colspan="1"> <b>Sub Total</b> </td>
+        {% if doc.taxes %}
+        {% for tax in doc.taxes %}
+        {% set account = frappe.get_cached_doc("Account", tax.account_head) %}
 
-        <td colspan="1" class="right bold" style="white-space: nowrap;">
+        {% if account.account_type == "Tax" %}
+        {% set _ = ns.gst.append(tax) %}
+        {% else %}
+        {% set _ = ns.before_tax.append(tax) %}
+        {% set ns.total_before_tax = tax.total %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
 
-            {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency)}}
-        </td>
+        <!-- Charges Before Tax -->
+        {% for tax in ns.before_tax %}
+        <tr>
+            <td colspan="6" class="right">
+                Add: {{ tax.description or tax.account_head }}
+                {% if tax.rate %}
+                ({{ "{:g}".format(tax.rate) }}%)
+                {% endif %}
+            </td>
 
-    </tr>
+            <td class="right" style="white-space: nowrap;">
+                {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
+            </td>
+        </tr>
+        {% endfor %}
 
-    <!-- Taxes -->
-    {% if doc.taxes %}
+        <!-- Total Before Tax -->
+        <tr>
+            <td colspan="6" class="right">
+                <b>Total Before Tax</b>
+            </td>
 
-    {% for tax in doc.taxes %}
-    <tr>
-        <td colspan="6" class="right">
-            {{ tax.description or tax.account_head }}
-            ({{ "{:g}".format(tax.rate) }}%)</td>
-        <td colspan="1" class="right" style="white-space: nowrap;">
-            {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
-        </td>
-    </tr>
-    {% endfor %}
+            <td class="right bold" style="white-space: nowrap;">
+                {{ frappe.utils.fmt_money(ns.total_before_tax, currency=doc.currency) }}
+            </td>
+        </tr>
 
-    {% endif %}
+        <!-- GST / Tax Accounts -->
+        {% for tax in ns.gst %}
+        <tr>
+            <td colspan="6" class="right">
+                Add: {{ tax.description or tax.account_head }}
+                {% if tax.rate %}
+                ({{ "{:g}".format(tax.rate) }}%)
+                {% endif %}
+            </td>
 
-    <!-- Discount -->
-    {% if doc.discount_amount %}
-    <tr>
-        <td colspan="6" class="right">
-            Discount
-            {% if doc.additional_discount_percentage %}
-            ({{ doc.additional_discount_percentage }}%)
-            {% endif %}
-        </td>
-        <td colspan="1" class="right">
-            -{{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) }}
-        </td>
-    </tr>
-    {% endif %}
+            <td class="right" style="white-space: nowrap;">
+                {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) }}
+            </td>
+        </tr>
+        {% endfor %}
 
-    <!-- Grand total -->
-    <tr>
-        <td colspan="6" class="right">
-            <b>Grand Total</b>
-        </td>
-        <td colspan="1" class="right">
-            <b>{{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}</b>
-        </td>
-    </tr>
+        <!-- Discount -->
+        {% if doc.discount_amount %}
+        <tr>
+            <td colspan="6" class="right">
+                Discount
+                {% if doc.additional_discount_percentage %}
+                ({{ doc.additional_discount_percentage }}%)
+                {% endif %}
+            </td>
 
-    <tr>
-        <td colspan="7" style="padding:8px;">
-            <b>Amount in Words in Rs. :</b>
-            {{ doc.in_words }}
-        </td>
-    </tr>
+            <td class="right">
+                -{{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) }}
+            </td>
+        </tr>
+        {% endif %}
+
+        <!-- Total After Tax -->
+        <tr>
+            <td colspan="6" class="right">
+                <b>Total After Tax</b>
+            </td>
+
+            <td class="right bold" style="white-space: nowrap;">
+                {{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) }}
+            </td>
+        </tr>
+
+
+        <tr>
+            <td colspan="7" style="padding:8px;">
+                <b>Amount in Words in Rs. :</b>
+                {{ doc.in_words }}
+            </td>
+        </tr>
+    </tbody>
+
 </table>
 
 
