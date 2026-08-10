@@ -177,13 +177,17 @@ details.
 
             Invoice No.<br>
 
-            {{ item.against_sales_invoice or "" }}
+            {{ doc.custom_override_sales_invoice_no or item.against_sales_invoice or "" }}
 
             <br>
 
             Dated :
 
+            {% if doc.custom_override_sales_invoice_no %}
             {{ frappe.utils.formatdate(doc.posting_date) }}
+            {% elif item.against_sales_invoice %}
+            {{ frappe.utils.formatdate(item.creation) }}
+            {% endif %}
 
             <br>
 
@@ -269,10 +273,10 @@ details.
 
     Packed in
     <b>
-        {{doc.custom_wooden_box_qty}}
+        {{doc.custom_box_qty}} {{doc.custom_type_of_box}}
     </b>
 
-    Wooden Boxes booked to
+    booked to
     <b>
         {{ doc.customer_name }}
     </b>
