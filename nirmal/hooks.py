@@ -86,6 +86,12 @@ fixtures = [
         "dt": "Custom Field",
         "filters": [
             ["module", "in", ["Nirmal"]]
+        ],
+    },
+        {
+        "dt": "Property Setter",
+        "filters": [
+            ["module", "in", ["Nirmal"]]
         ]
     }
 ]
