@@ -19,4 +19,18 @@ def before_uninstall():
             force=True,
         )
 
+    property_setters = frappe.get_all(
+        "Property Setter",
+        filters={"module": module},
+        pluck="name",
+    )
+
+    for ps in property_setters:
+        frappe.delete_doc(
+            "Property Setter",
+            ps,
+            ignore_permissions=True,
+            force=True,
+        )
+        
     frappe.clear_cache()
