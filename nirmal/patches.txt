@@ -4,3 +4,5 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+nirmal.patches.migrate_purchase_enquiry_by_to_comments
+nirmal.patches.remove_custom_purchase_enquiry_by

@@ -51,7 +51,10 @@ required_apps = ["erpnext"]
 doctype_js = {
     "Quotation": "public/js/quotation.js",
     "Sales Order": "public/js/quotation.js",
-    "Sales Invoice": "public/js/quotation.js"
+    "Sales Invoice": "public/js/quotation.js",
+    "Sales Invoice": "public/js/sales_invoice_item.js",
+    "Sales Invoice Item": "public/js/sales_invoice_item.js",
+    "Quotation": "public/js/sales_invoice_item.js"
 }
 
 override_whitelisted_methods = {
