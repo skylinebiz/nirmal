@@ -1,125 +1,65 @@
 import frappe
+from frappe import _
 
 
-def validate_customer_email(doc, method=None):
+def _get_customer_email(doc):
+    """Resolve the effective email for a Customer: its own `email_id`,
+    else the Primary Contact's `email_id`, else any email on the Primary
+    Contact's Contact Email child table."""
     email = (doc.get("email_id") or "").strip()
+    if email:
+        return email
 
-    # Customer.email_id is populated from the primary Contact.
-    if not email and doc.get("customer_primary_contact"):
-        email = frappe.db.get_value(
-            "Contact",
-            doc.customer_primary_contact,
-            "email_id",
-        )
+    primary_contact = doc.get("customer_primary_contact")
+    if not primary_contact:
+        return ""
 
-    # Check Contact Email child table as the final source.
-    if not email and doc.get("customer_primary_contact"):
-        email = frappe.db.get_value(
+    email = (
+        frappe.db.get_value("Contact", primary_contact, "email_id") or ""
+    ).strip()
+    if email:
+        return email
+
+    email = (
+        frappe.db.get_value(
             "Contact Email",
             {
-                "parent": doc.customer_primary_contact,
+                "parent": primary_contact,
                 "parenttype": "Contact",
                 "email_id": ["is", "set"],
             },
             "email_id",
         )
-
-    if not email:
-        frappe.throw(
-            "Email ID is mandatory when creating a Customer.",
-            title="Email Required",
-        )
+        or ""
+    ).strip()
+    return email
 
 
 def validate_customer_email_contact(doc, method=None):
-    # 1. Customer email
-    email = (doc.get("email_id") or "").strip()
+    """A Customer without an Email ID (own, or via its Primary Contact) is
+    never blocked from saving. Instead, it is forced disabled until a
+    Primary Contact with an Email ID is linked.
 
-    if email:
+    Once an email exists, this hook does not touch `disabled` at all —
+    enabling/disabling a Customer stays a manual, user-driven action, so
+    an already-disabled Customer is never re-enabled automatically just
+    because some other field was edited.
+    """
+    if _get_customer_email(doc):
         return
 
-    # 2. Primary Contact
-    primary_contact = doc.get("customer_primary_contact")
-
-    if primary_contact:
-        # Check Contact.email_id
-        email = (
-            frappe.db.get_value(
-                "Contact",
-                primary_contact,
-                "email_id",
-            )
-            or ""
-        ).strip()
-
-        if email:
-            return
-
-        # Check Contact Email child table
-        email = (
-            frappe.db.get_value(
-                "Contact Email",
-                {
-                    "parent": primary_contact,
-                    "parenttype": "Contact",
-                    "email_id": ["is", "set"],
-                },
-                "email_id",
-            )
-            or ""
-        ).strip()
-
-        if email:
-            return
-
-    # 3. Nothing found
-    frappe.throw(
-        "Email ID is mandatory. Please provide an Email ID or add a Primary Contact with an Email ID.",
-        title="Email Required",
-    )
-
-
-def validate_existing_customer_email(doc, method=None):
-    if doc.is_new():
+    # Already disabled and still no email: nothing changed, nothing to warn
+    # about — stay silent instead of re-nagging on every unrelated save.
+    if doc.disabled:
         return
 
-    email = (doc.get("email_id") or "").strip()
-
-    if email:
-        return
-
-    primary_contact = doc.get("customer_primary_contact")
-
-    if primary_contact:
-        email = (
-            frappe.db.get_value(
-                "Contact",
-                primary_contact,
-                "email_id",
-            )
-            or ""
-        ).strip()
-
-        if email:
-            return
-
-        email = (
-            frappe.db.get_value(
-                "Contact Email",
-                {
-                    "parent": primary_contact,
-                    "parenttype": "Contact",
-                    "email_id": ["is", "set"],
-                },
-                "email_id",
-            )
-            or ""
-        ).strip()
-
-        if email:
-            return
-
-    frappe.throw(
-        "Email ID is mandatory. Please add an Email ID or a Primary Contact with an Email ID.",
-        title="Email Required",
+    doc.disabled = 1
+    frappe.msgprint(
+        _(
+            "This Customer has no Email ID and no Primary Contact with an "
+            "Email ID, so it has been disabled. Link a Primary Contact with "
+            "an Email ID, then enable the Customer manually."
+        ),
+        title=_("Customer Disabled"),
+        indicator="orange",
     )
