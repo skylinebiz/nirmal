@@ -52,9 +52,7 @@ doctype_js = {
     "Quotation": "public/js/quotation.js",
     "Sales Order": "public/js/quotation.js",
     "Sales Invoice": "public/js/quotation.js",
-    "Sales Invoice": "public/js/sales_invoice_item.js",
     "Sales Invoice Item": "public/js/sales_invoice_item.js",
-    "Quotation": "public/js/sales_invoice_item.js"
 }
 
 override_whitelisted_methods = {
@@ -83,15 +81,21 @@ override_whitelisted_methods = {
 fixtures = [
     {
         "dt": "Letter Head",
-        "filters": [["name", "in", ["Nirmal Quotation"]]]
+        "filters": [
+            ["name", "in", [
+                "Nirmal Quotation",
+                "Quotation 26082026 LH Template",
+                "Quotation 26082026 LH Export Template"
+            ]]
+        ]
     },
     {
         "dt": "Custom Field",
         "filters": [
             ["module", "in", ["Nirmal"]]
-        ],
+        ]
     },
-        {
+    {
         "dt": "Property Setter",
         "filters": [
             ["module", "in", ["Nirmal"]]
