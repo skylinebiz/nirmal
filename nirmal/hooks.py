@@ -105,9 +105,9 @@ fixtures = [
 
 doc_events = {
     "Customer": {
-        "before_insert": "nirmal.overrides.customer.validate_customer_email",
-        "before_save": "nirmal.overrides.customer.validate_existing_customer_email",
-        # "validate": "nirmal.overrides.customer.validate_customer_email_contact",
+        # "before_insert": "nirmal.overrides.customer.validate_customer_email",
+        # "before_save": "nirmal.overrides.customer.validate_existing_customer_email",
+        "validate": "nirmal.overrides.customer.validate_customer_email_contact",
     }
 }
 
