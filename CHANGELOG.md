@@ -5,6 +5,16 @@ All notable changes to Nirmal are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/): MAJOR for breaking changes, MINOR for backward-compatible features, and PATCH for backward-compatible fixes.
 
 
+## [5.3.0] - 2026-09-10
+
+### Added
+
+- Quotation, Sales Order, and Sales Invoice can no longer be submitted if the Customer does not have an Email Id.
+
+### Changed
+
+- A Customer can be created without an Email Id again; it will no longer be disabled automatically.
+
 ## [5.2.0] - 2026-08-27
 
 ### Added

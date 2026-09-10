@@ -26,7 +26,12 @@ required_apps = ["erpnext"]
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/nirmal/css/nirmal.css"
-# app_include_js = "/assets/nirmal/js/nirmal.js"
+
+# Loaded unconditionally on every Desk page (after ERPNext's own bundle,
+# since "erpnext" precedes "nirmal" in apps.txt). Used instead of
+# doctype_js for the Customer Quick Entry patch: doctype_js/Client Script
+# content only runs inside a Form's ScriptManager, which a Quick Entry
+# dialog never instantiates — see nirmal/public/js/customer.js.
 
 # include js, css files in header of web template
 # web_include_css = "/assets/nirmal/css/nirmal.css"
@@ -53,7 +58,6 @@ doctype_js = {
     "Sales Order": "public/js/quotation.js",
     "Sales Invoice": "public/js/quotation.js",
     "Sales Invoice Item": "public/js/sales_invoice_item.js",
-    "Customer": "public/js/customer.js",
 }
 
 override_whitelisted_methods = {
@@ -105,9 +109,15 @@ fixtures = [
 ]
 
 doc_events = {
-    "Customer": {
-        "validate": "nirmal.overrides.customer.validate_customer_email_contact",
-    }
+    "Quotation": {
+        "before_submit": "nirmal.overrides.transaction.validate_contact_email_on_submit",
+    },
+    "Sales Order": {
+        "before_submit": "nirmal.overrides.transaction.validate_contact_email_on_submit",
+    },
+    "Sales Invoice": {
+        "before_submit": "nirmal.overrides.transaction.validate_contact_email_on_submit",
+    },
 }
 
 # Svg Icons
