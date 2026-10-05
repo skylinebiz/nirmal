@@ -5,6 +5,12 @@ All notable changes to Nirmal are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/): MAJOR for breaking changes, MINOR for backward-compatible features, and PATCH for backward-compatible fixes.
 
 
+## [5.4.0] - 2026-10-05
+
+### Changed
+
+- Creating a Sales Order from a Quotation no longer auto-populates the Customer's Purchase Order No and Date from the Quotation's Purchase Enquiry No and Date.
+
 ## [5.3.0] - 2026-09-10
 
 ### Added
