@@ -30,5 +30,37 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Sales Order",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "po_no",
+  "is_system_generated": 0,
+  "modified": "2026-10-05 11:32:25.759580",
+  "module": "Nirmal",
+  "name": "Sales Order-po_no-reqd",
+  "property": "reqd",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Sales Order",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "po_date",
+  "is_system_generated": 0,
+  "modified": "2026-10-05 11:32:19.099418",
+  "module": "Nirmal",
+  "name": "Sales Order-po_date-reqd",
+  "property": "reqd",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]
