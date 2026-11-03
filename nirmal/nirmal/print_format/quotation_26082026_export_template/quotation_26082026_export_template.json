@@ -2,7 +2,7 @@
  "absolute_value": 0,
  "align_labels_right": 0,
  "creation": "2026-08-26 12:42:53.550643",
- "css": "html, body {\n    margin: 0 !important;\n    padding: 0 !important;\n    box-sizing: border-box;\n}\n\n.footer-pad{\n    padding-bottom:1rem;\n    padding-right:2rem;\n}\n\n.print-format > *:not(.print-heading) {\n    padding-top: 1rem !important;\n}",
+ "css": "html, body {\n    /*margin: 0 !important;*/\n    /*padding: 0 !important;*/\n    box-sizing: border-box;\n}\n\n\n@media print {\n    body { margin: 0 !important; padding: 0 !important; }\n    .print-format { padding: 10mm !important; }\n}\n\n\n.footer-pad{\n    padding-bottom:1rem;\n    padding-right:2rem;\n}\n\n.print-format > *:not(.print-heading) {\n    padding-top: 1rem !important;\n}",
  "custom_format": 1,
  "default_print_language": "en",
  "disabled": 0,
@@ -17,7 +17,7 @@
  "margin_left": 15.0,
  "margin_right": 15.0,
  "margin_top": 15.0,
- "modified": "2026-08-27 11:50:34.102706",
+ "modified": "2026-11-02 17:48:55.181057",
  "modified_by": "Administrator",
  "module": "Nirmal",
  "name": "Quotation 26082026 Export Template",
@@ -29,6 +29,7 @@
  "print_format_for": "DocType",
  "print_format_type": "Jinja",
  "raw_printing": 0,
+ "show_label_colon": 0,
  "show_section_headings": 0,
  "standard": "Yes"
 }
